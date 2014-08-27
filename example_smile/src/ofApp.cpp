@@ -14,7 +14,7 @@ void ofApp::update(){
     cam.update();
     if (cam.isFrameNew()) {
         image.setFromPixels(cam.getPixelsRef());
-        detectedFaces = detector.detectFaceFeatures(image, true, true);
+        detectedFaces = detector.detectFaceFeatures(image, true, false);
     }
 }
 
