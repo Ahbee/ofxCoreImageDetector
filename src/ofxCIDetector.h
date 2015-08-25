@@ -30,7 +30,7 @@ public:
     // tracking, pass true if you want to track faces from a video feed
     // minFeatureSize, a number from 0-1 which tells the detector the minimum size that qualifies as a face
     // the number passed in represents a fraction of the minor dimension of the image.
-    void setup(OFX_DETECTOR_ACCURACY accuracy,bool tracking,float minFeatureSize);
+    void setup(OFX_DETECTOR_ACCURACY accuracy,bool tracking,float minFeatureSize,bool threaded);
     
     // detects the facesFeatures of the given image
     // I dont completely understand the ImageOrientaion parameter, but has something to do with the orintation of the face you
@@ -42,6 +42,11 @@ public:
 private:
     CIDetector *_detector;
     BOOL isSetup;
+    CIContext* context_;
+    NSOpenGLContext *glContext_;
+    CGColorSpaceRef colorSpace_;
+    NSOpenGLPixelFormat *pf_;
+void createContext();
 
 private:
     static CGColorSpaceRef _colorSpace;

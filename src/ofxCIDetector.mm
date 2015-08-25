@@ -2,6 +2,9 @@
 
 CGColorSpaceRef ofxCIDetector::_colorSpace = nil;
 
+
+
+
 CIImage* ofxCIDetector::CIImageFrom(const ofImage &img){
     ofImage srcImage = img;
     srcImage.setImageType(OF_IMAGE_COLOR_ALPHA);
@@ -31,25 +34,73 @@ void ofxCIDetector::convertToARGB(ofImage &image){
     }
 }
 
-void ofxCIDetector::setup(OFX_DETECTOR_ACCURACY accuracy, bool tracking, float minFeatureSize){
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);  
-    });
-    if (minFeatureSize <=0 || minFeatureSize >=1) {
-        ofLogError("ofxCIDetector") << "minFeatureSize must be between 0-1.0 exclusive";
-        return;
+
+void ofxCIDetector::createContext(){
+    const NSOpenGLPixelFormatAttribute attr[] = {
+        NSOpenGLPFAAccelerated,
+        NSOpenGLPFANoRecovery,
+        NSOpenGLPFAColorSize, 24,
+        NSOpenGLPFAAlphaSize,8,
+        NSOpenGLPFAOpenGLProfile,NSOpenGLProfileVersionLegacy,
+        0
+    };
+    colorSpace_ = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    pf_ = [[NSOpenGLPixelFormat alloc] initWithAttributes:attr];
+    glContext_ = [[NSOpenGLContext alloc] initWithFormat:pf_ shareContext:nil];
+    CGLPixelFormatObj pfo = (CGLPixelFormatObj)[pf_ CGLPixelFormatObj];
+    CGLContextObj gclco = (CGLContextObj)[glContext_ CGLContextObj];
+    context_ = [CIContext contextWithCGLContext:gclco pixelFormat:pfo colorSpace:colorSpace_
+                                        options:@{kCIContextUseSoftwareRenderer: [NSNumber numberWithBool:NO]}];
+    if (glContext_ == nil) {
+        ofLogError("ofxCI") << "could not create context for Core Image";
+        exit(1);
     }
-    isSetup = true;
-    NSString *accuracyString;
-    if (accuracy == OFX_ACCURACY_LOW) {
-        accuracyString = CIDetectorAccuracyLow;
-    }else{
-        accuracyString = CIDetectorAccuracyHigh;
-    }
-    _detector = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:@{CIDetectorAccuracy: accuracyString,
+    [context_ retain];
+    NSOpenGLContext* previousContext = [NSOpenGLContext currentContext];
+    [glContext_ makeCurrentContext];
+    glClearColor(0, 0, 0, 1.0);
+    //[previousContext makeCurrentContext];
+}
+
+void ofxCIDetector::setup(OFX_DETECTOR_ACCURACY accuracy, bool tracking, float minFeatureSize,bool threaded){
+    if (!threaded) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            _colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        });
+        if (minFeatureSize <=0 || minFeatureSize >=1) {
+            ofLogError("ofxCIDetector") << "minFeatureSize must be between 0-1.0 exclusive";
+            return;
+        }
+        isSetup = true;
+        NSString *accuracyString;
+        if (accuracy == OFX_ACCURACY_LOW) {
+            accuracyString = CIDetectorAccuracyLow;
+        }else{
+            accuracyString = CIDetectorAccuracyHigh;
+        }
+        _detector = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:@{CIDetectorAccuracy: accuracyString,
                                                                                         CIDetectorTracking:[NSNumber numberWithBool:tracking],
                                                                                         CIDetectorMinFeatureSize:[NSNumber numberWithFloat:minFeatureSize]}];
+        
+    }else{
+        if (minFeatureSize <=0 || minFeatureSize >=1) {
+            ofLogError("ofxCIDetector") << "minFeatureSize must be between 0-1.0 exclusive";
+            return;
+        }
+        createContext();
+        isSetup = true;
+        NSString *accuracyString;
+        if (accuracy == OFX_ACCURACY_LOW) {
+            accuracyString = CIDetectorAccuracyLow;
+        }else{
+            accuracyString = CIDetectorAccuracyHigh;
+        }
+        _detector = [CIDetector detectorOfType:CIDetectorTypeFace context:context_ options:@{CIDetectorAccuracy: accuracyString,
+                                                                                        CIDetectorTracking:[NSNumber numberWithBool:tracking],
+                                                                                        CIDetectorMinFeatureSize:[NSNumber numberWithFloat:minFeatureSize]}];
+    }
+   
     [_detector retain];
 }
 
