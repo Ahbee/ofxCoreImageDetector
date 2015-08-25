@@ -68,7 +68,7 @@ vector<shared_ptr<ofxCIFaceFeature> > ofxCIDetector::detectFaceFeatures(const of
     vector<shared_ptr<ofxCIFaceFeature> > faceFeatures;
     for (CIFaceFeature *f in features){
         if ([f.type isEqualToString:CIFeatureTypeFace]) {
-            shared_ptr<ofxCIFaceFeature> faceFeature(new ofxCIFaceFeature);
+            shared_ptr<ofxCIFaceFeature> faceFeature(new ofxCIFaceFeature());
             faceFeature->setup(f);
             faceFeatures.push_back(faceFeature);
         }
