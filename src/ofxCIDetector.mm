@@ -131,10 +131,17 @@ vector<shared_ptr<ofxCIFaceFeature> > ofxCIDetector::detectFaceFeatures(const of
 ofxCIDetector::ofxCIDetector(){
     isSetup = false;
     _detector = nil;
+    context_ = nil;
+    glContext_ = nil;
+    pf_ = nil;
 }
 
 ofxCIDetector::~ofxCIDetector(){
     [_detector release];
+    [context_ release];
+    [glContext_ release];
+    [pf_ release];
+    CGColorSpaceRelease(colorSpace_);
 }
 
 

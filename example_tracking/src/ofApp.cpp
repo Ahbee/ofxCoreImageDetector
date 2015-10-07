@@ -4,7 +4,7 @@
 void ofApp::setup(){
     cam.initGrabber(640, 480);
     font.loadFont("verdana.ttf", 20);
-    detector.setup(OFX_ACCURACY_HIGH, true, .05);
+    detector.setup(OFX_ACCURACY_HIGH, true, .05,false);
     ofSetFrameRate(30.0);
     
 }

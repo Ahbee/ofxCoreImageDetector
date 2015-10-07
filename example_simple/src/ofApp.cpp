@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     family.loadImage("family.jpg");
-    detector.setup(OFX_ACCURACY_HIGH, false,.1);
+    detector.setup(OFX_ACCURACY_HIGH, false,.1,false);
     faces = detector.detectFaceFeatures(family, false, false);
 }
 
