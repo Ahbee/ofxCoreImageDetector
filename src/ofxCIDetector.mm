@@ -133,6 +133,7 @@ ofxCIDetector::ofxCIDetector(){
     _detector = nil;
     context_ = nil;
     glContext_ = nil;
+    colorSpace_ = nil;
     pf_ = nil;
 }
 
