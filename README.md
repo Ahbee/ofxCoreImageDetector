@@ -8,15 +8,11 @@ ofxCoreImageDetector allows you to use apple's [CIDetector](https://developer.ap
 
 ##How to use 
 
-####Step 1 Link Quartz Core
+####Step 1 Change source files to objective c++
 
-Go to Build Phases/Link binary with libraries,press the + sign and select QuartzCore.framework.
+Every source file in which you include "ofxCI.h", must be marked as objective c++. To do this select the file, open the file inspector (option+command + 1) and select objective c++ as the type. Some people might say to change the extension from .cpp to .mm, but this does not always work(Better to do both). 
 
-####Step 2 Change source files to objective c++
-
-Every source file in which you include "ofxCI.h", must be marked as objective c++. To do this select the file, open the file inspector (option+command + 1) and select objective c++ as the type. Some people might say to change the extension from .cpp to .mm, but this does not always work. 
-
-#### step 4 Create and setup a detector
+#### step 2 Create and setup a detector
 
 ```
 ofxCIDetector detector;
@@ -33,14 +29,14 @@ The thrid specifies the minimum size that the detector will recognize as a featu
 
 
 
-#### step 5 Create an array of shared pointers to ofxCIFaceFeature
+#### step 3 Create an array of shared pointers to ofxCIFaceFeature
 
 ```
     vector<shared_ptr<ofxCIFaceFeature> > detectedFaces;
 
 ```
 
-#### step 6 DetectFeatures
+#### step 4 DetectFeatures
 
 Use the array created in step 5 to store the results from `ofxCIDetector::detectFaceFeatures`
 
@@ -54,7 +50,7 @@ The second parameter specifies whether or not you want to detect smiles.
 
 The third parameter specifies  whether or not you want to detect closed eyes.
 
-#### step 7 extract info from each feature 
+#### step 5 extract info from each feature 
 loop through the array created in step 5 to get info for each feature detected, for example
 
 ```
