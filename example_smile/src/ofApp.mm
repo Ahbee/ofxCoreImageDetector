@@ -3,18 +3,18 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     cam.initGrabber(640, 480);
-    font.loadFont("verdana.ttf", 20);
-    detector.setup(OFX_ACCURACY_HIGH, true, .05);
+    smiley.load("smiley.jpg");
+    font.load("verdana.ttf", 20);
+    detector.setup(OFX_ACCURACY_HIGH, false, .2);
     ofSetFrameRate(30.0);
-    
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
     cam.update();
     if (cam.isFrameNew()) {
-        image.setFromPixels(cam.getPixelsRef());
-        detectedFaces = detector.detectFaceFeatures(image, false, false);
+        image.setFromPixels(cam.getPixels());
+        detectedFaces = detector.detectFaceFeatures(image, true, false);
     }
 }
 
@@ -26,22 +26,25 @@ void ofApp::draw(){
     image.draw(0, 0);
     for (int i = 0; i < detectedFaces.size(); i++) {
         shared_ptr<ofxCIFaceFeature> &f = detectedFaces[i];
+        if (f->hasSmile()) {
+            smiley.draw(700, 20);
+        }
+        ofSetColor(ofColor::yellow);
+        if (f->hasLeftEyePosition()) {
+            ofDrawCircle(f->getLeftEyePosition(), 10);
+        }
+        if (f->hasRightEyePosition()) {
+            ofDrawCircle(f->getRightEyePosition(), 10);
+        }
+        if (f->hasMouthPosition()) {
+            ofDrawCircle(f->getMouthPosition(), 15);
+        }
         ofSetColor(ofColor::green);
-        ofRect(f->getBounds());
-        // for some reason the first face detected is not tracked but evrything else is.
-        // this bug might be fixed in the 64 bit version
-        if (f->hasTrackingID()) {
-            ofSetColor(ofColor::pink);
-            font.drawString(ofToString(f->getTrackingID()), f->getBounds().getCenter().x,f->getBounds().getCenter().y);
-        }
-        if (f->hasFaceAngle()) {
-            ofLog() << f->getFaceAngle();
-        }
+        ofDrawRectangle(f->getBounds());
+        
     }
     ofSetColor(0);
-    string instructions = "For some reason the first face detected is not tracked\nso first move out of screen and then back in to start tracking";
-    font.drawString(instructions, 30, 600);
-    
+    font.drawString("Smile to detect smiles", 30, 600);
 }
 
 //--------------------------------------------------------------

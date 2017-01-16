@@ -2,39 +2,46 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    family.loadImage("family.jpg");
-    detector.setup(OFX_ACCURACY_HIGH, false,.1);
-    faces = detector.detectFaceFeatures(family, false, false);
-}
-
-//--------------------------------------------------------------
-void ofApp::update(){
+    cam.initGrabber(640, 480);
+    font.load("verdana.ttf", 20);
+    detector.setup(OFX_ACCURACY_HIGH, true, .05);
+    ofSetFrameRate(30.0);
     
 }
 
 //--------------------------------------------------------------
+void ofApp::update(){
+    cam.update();
+    if (cam.isFrameNew()) {
+        image.setFromPixels(cam.getPixels());
+        detectedFaces = detector.detectFaceFeatures(image, false, false);
+    }
+}
+
+//--------------------------------------------------------------
 void ofApp::draw(){
-    family.draw(0, 0);
-    ofSetColor(ofColor::green);
     ofSetLineWidth(3.0);
     ofNoFill();
-    for (int i = 0; i < faces.size(); i++) {
-        shared_ptr<ofxCIFaceFeature> &f = faces[i];
-        ofSetColor(ofColor::yellow);
-        if (f->hasLeftEyePosition()) {
-            ofCircle(f->getLeftEyePosition(), 10);
-        }
-        if (f->hasRightEyePosition()) {
-            ofCircle(f->getRightEyePosition(), 10);
-        }
-        if (f->hasMouthPosition()) {
-            ofCircle(f->getMouthPosition(), 15);
-        }
-        ofSetColor(ofColor::green);
-        ofRect(f->getBounds());
-        
-    }
     ofSetColor(ofColor::white);
+    image.draw(0, 0);
+    for (int i = 0; i < detectedFaces.size(); i++) {
+        shared_ptr<ofxCIFaceFeature> &f = detectedFaces[i];
+        ofSetColor(ofColor::green);
+        ofDrawRectangle(f->getBounds());
+        // for some reason the first face detected is not tracked but evrything else is.
+        // this bug might be fixed in the 64 bit version
+        if (f->hasTrackingID()) {
+            ofSetColor(ofColor::pink);
+            font.drawString(ofToString(f->getTrackingID()), f->getBounds().getCenter().x,f->getBounds().getCenter().y);
+        }
+        if (f->hasFaceAngle()) {
+            ofLog() << f->getFaceAngle();
+        }
+    }
+    ofSetColor(0);
+    string instructions = "For some reason the first face detected is not tracked\nso first move out of screen and then back in to start tracking";
+    font.drawString(instructions, 30, 600);
+    
 }
 
 //--------------------------------------------------------------

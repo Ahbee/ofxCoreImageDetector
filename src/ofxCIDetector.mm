@@ -7,17 +7,17 @@ CIImage* ofxCIDetector::CIImageFrom(const ofImage &img){
     srcImage.setImageType(OF_IMAGE_COLOR_ALPHA);
     convertToARGB(srcImage);
     srcImage.mirror(true, false);
-    NSUInteger length = srcImage.getPixelsRef().size();
+    NSUInteger length = srcImage.getPixels().size();
     NSUInteger bbp = 4;
     NSUInteger bpr = srcImage.getWidth() * 4;
     CGSize size = CGSizeMake(srcImage.getWidth(), srcImage.getHeight());
-    NSData *bitmapData = [NSData dataWithBytes:srcImage.getPixels() length:length];
+    NSData *bitmapData = [NSData dataWithBytes:srcImage.getPixels().getData() length:length];
     CIImage *dst = [CIImage imageWithBitmapData:bitmapData bytesPerRow:bpr size:size format:kCIFormatARGB8 colorSpace:_colorSpace];
     return dst;
 }
 
 void ofxCIDetector::convertToARGB(ofImage &image){
-    unsigned char *data = image.getPixels();
+    unsigned char *data = image.getPixels().getData();
     int size = image.getWidth() * image.getHeight() * 4;
     for (int i = 0; i < size; i+=4) {
         unsigned char r = data[i];

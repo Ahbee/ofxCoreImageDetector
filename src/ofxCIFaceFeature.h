@@ -1,6 +1,9 @@
 #pragma once
-#include "ofMain.h"
 #import <QuartzCore/QuartzCore.h>
+
+#include "ofMain.h"
+
+
 
 class ofxCIFaceFeature {
     
